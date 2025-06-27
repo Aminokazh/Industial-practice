@@ -1,0 +1,62 @@
+----------------------------------------------------------------------
+
+Age = DATEDIFF(Users_Table[birth_date], TODAY(), YEAR)
+
+----------------------------------------------------------------------
+
+ Age Group = SWITCH(
+    TRUE(),
+    Users_Table[Age] < 18, "<18",
+    Users_Table[Age] < 25, "18-24",
+    Users_Table[Age] < 35, "25-34",
+    Users_Table[Age] < 50, "35-49",
+    "50+"
+)
+
+----------------------------------------------------------------------
+
+Completion Rate % = 
+DIVIDE(
+    CALCULATE(COUNTROWS(Enrollments_Table), Enrollments_Table[completed] = 1),
+    COUNTROWS(Enrollments_Table),
+    0
+) * 100
+
+----------------------------------------------------------------------
+
+Avg Progress % = AVERAGE(Enrollments_Table[progress_percent])
+
+----------------------------------------------------------------------
+
+Total Enrollments = COUNTROWS(Enrollments_Table)
+
+----------------------------------------------------------------------
+
+Completed Enrollments = CALCULATE(COUNTROWS(Enrollments_Table), Enrollments_Table[completed] = 1)
+
+----------------------------------------------------------------------
+
+UserStatus =
+VAR DaysSinceEnroll = DATEDIFF('Enrollments'[enroll_date], TODAY(), DAY)
+RETURN
+    SWITCH(TRUE(),
+        'Enrollments_Table'[progress_percent] = 100, "Завершил",
+        'Enrollments_Table'[progress_percent] > 0 && 'Enrollments_Table'[progress_percent] < 50, "Застрял",
+        'Enrollments_table'[progress_percent] < 100 && DaysSinceEnroll > 30, "Бросил",
+        "Активен"
+    )
+
+----------------------------------------------------------------------
+
+AvgProgressByAuthor = 
+CALCULATE(
+    AVERAGE('Enrollments_Table'[progress_percent]),
+    ALLEXCEPT('Courses_Table', 'Courses_Table'[author_id])
+)
+
+----------------------------------------------------------------------
+
+
+
+
+
